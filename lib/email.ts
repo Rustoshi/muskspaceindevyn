@@ -176,6 +176,70 @@ export function buildMembershipRejectedEmail(
 </div>`;
 }
 
+export function buildAccountPendingEmail(firstName: string): string {
+    return `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background-color: #0a0a0a; color: #ffffff; border-radius: 12px;">
+  <h1 style="font-size: 22px; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 4px;">
+    Musk <span style="color: #e82127;">Space</span>
+  </h1>
+  <p style="color: #555; font-size: 12px; margin: 0 0 28px; letter-spacing: 2px; text-transform: uppercase;">Investment Platform</p>
+  <hr style="border: none; border-top: 1px solid #222; margin-bottom: 28px;" />
+
+  <h2 style="font-size: 20px; font-weight: 600; margin: 0 0 12px;">Thanks for registering, ${firstName}!</h2>
+  <p style="color: #aaa; line-height: 1.7; margin: 0 0 24px;">
+    Your Musk Space account has been created and is currently <strong style="color: #fff;">under review</strong> by our team. To protect our community, every new account is manually verified before activation.
+  </p>
+
+  <div style="background: #1f1a0d; border: 1px solid #3a311a; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+    <p style="margin: 0 0 8px; font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px;">Account Status</p>
+    <p style="margin: 0; font-size: 16px; font-weight: bold; color: #f59e0b;">Under Review</p>
+    <p style="margin: 8px 0 0; font-size: 13px; color: #666;">This typically takes 1–3 business days.</p>
+  </div>
+
+  <p style="color: #888; font-size: 13px; margin-bottom: 24px;">
+    You will receive another email as soon as a decision has been made. You will not be able to log in until your account has been approved.
+  </p>
+
+  <hr style="border: none; border-top: 1px solid #222; margin-bottom: 20px;" />
+  <p style="color: #444; font-size: 11px; margin: 0;">If you did not create this account, please disregard this email. &copy; Musk Space</p>
+</div>`;
+}
+
+export function buildAccountRejectedEmail(firstName: string, reason?: string): string {
+    return `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background-color: #0a0a0a; color: #ffffff; border-radius: 12px;">
+  <h1 style="font-size: 22px; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 4px;">
+    Musk <span style="color: #e82127;">Space</span>
+  </h1>
+  <p style="color: #555; font-size: 12px; margin: 0 0 28px; letter-spacing: 2px; text-transform: uppercase;">Investment Platform</p>
+  <hr style="border: none; border-top: 1px solid #222; margin-bottom: 28px;" />
+
+  <h2 style="font-size: 20px; font-weight: 600; margin: 0 0 12px;">Account Update, ${firstName}</h2>
+  <p style="color: #aaa; line-height: 1.7; margin: 0 0 24px;">
+    Thank you for your interest in Musk Space. After reviewing your registration, we're unable to approve your account at this time.
+  </p>
+
+  ${reason ? `
+  <div style="background: #1a0d0d; border: 1px solid #3a1a1a; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+    <p style="margin: 0 0 8px; font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px;">Review Notes</p>
+    <p style="margin: 0; font-size: 14px; color: #f87171; line-height: 1.6;">${reason}</p>
+  </div>
+  ` : `
+  <div style="background: #1a0d0d; border: 1px solid #3a1a1a; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+    <p style="margin: 0 0 8px; font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px;">Account Status</p>
+    <p style="margin: 0; font-size: 16px; font-weight: bold; color: #f87171;">Not Approved</p>
+  </div>
+  `}
+
+  <p style="color: #888; font-size: 13px; margin-bottom: 20px;">
+    If you believe this was a mistake, please contact our support team for assistance.
+  </p>
+
+  <hr style="border: none; border-top: 1px solid #222; margin-bottom: 20px;" />
+  <p style="color: #444; font-size: 11px; margin: 0;">&copy; Musk Space</p>
+</div>`;
+}
+
 export function buildApprovalEmail(firstName: string): string {
     const loginUrl = `${process.env.NEXTAUTH_URL || "https://muskspace.pro"}/invest/login`;
     return `

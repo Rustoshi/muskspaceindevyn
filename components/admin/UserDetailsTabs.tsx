@@ -170,9 +170,11 @@ export default function UserDetailsTabs({ user, userPlans = [], systemPlans = []
                                         <div className="space-y-1.5">
                                             <label className="text-[10px] uppercase tracking-widest text-white/40">Account Status <span className="text-red-500">*</span></label>
                                             <select name="accountStatus" defaultValue={user.accountStatus || 'active'} className="w-full bg-black/50 border border-white/[0.1] rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-500/50 transition-colors appearance-none">
+                                                <option value="pending">Pending Review</option>
                                                 <option value="active">Active</option>
                                                 <option value="suspended">Suspended</option>
                                                 <option value="blocked">Blocked</option>
+                                                <option value="rejected">Rejected</option>
                                             </select>
                                         </div>
 

@@ -22,7 +22,7 @@ export interface IUser extends Document {
     tierLevel: number;
     withdrawalPin?: number; // Number, not encrypted as requested
     role: 'user' | 'support' | 'manager' | 'super_admin';
-    accountStatus: 'pending' | 'active' | 'suspended' | 'blocked';
+    accountStatus: 'pending' | 'active' | 'suspended' | 'blocked' | 'rejected';
     kycStatus: 'unverified' | 'pending' | 'verified';
     kycDocuments: string[];
     kycFrontImage?: string;
@@ -67,8 +67,8 @@ const UserSchema: Schema = new Schema(
         },
         accountStatus: {
             type: String,
-            enum: ['pending', 'active', 'suspended', 'blocked'],
-            default: 'active'
+            enum: ['pending', 'active', 'suspended', 'blocked', 'rejected'],
+            default: 'pending'
         },
 
         // KYC

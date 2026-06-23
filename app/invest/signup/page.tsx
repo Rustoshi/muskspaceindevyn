@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import { countries } from "@/lib/countries";
 
@@ -19,7 +17,7 @@ const selectClass =
     "w-full bg-white/[0.04] border border-white/[0.1] rounded-xl px-4 py-3.5 text-sm text-white font-light outline-none focus:border-white/30 transition-colors duration-300 appearance-none cursor-pointer [&>option]:bg-[#0a0a0a] [&>option]:text-white";
 
 export default function SignupPage() {
-    const router = useRouter();
+    const [submitted, setSubmitted] = useState(false);
     const [form, setForm] = useState({
         email: "",
         firstName: "",
@@ -57,19 +55,8 @@ export default function SignupPage() {
                 throw new Error(data.message || "Something went wrong creating your account");
             }
 
-            // 2. Auto sign-in and redirect to dashboard
-            const result = await signIn("credentials", {
-                redirect: false,
-                email: form.email,
-                password: form.password,
-            });
-
-            if (result?.error) {
-                // Sign-in failed — fall back to login page
-                router.push("/invest/login");
-            } else {
-                router.push("/dashboard");
-            }
+            // Account created but pending admin approval — do NOT sign in.
+            setSubmitted(true);
 
         } catch (err: any) {
             setError(err.message || "An unexpected error occurred");
@@ -100,6 +87,36 @@ export default function SignupPage() {
                     </Link>
                 </div>
 
+                {submitted ? (
+                    /* Under Review Confirmation */
+                    <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-8 sm:p-10 text-center">
+                        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/30">
+                            <svg className="h-8 w-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h1
+                            className="text-2xl font-bold tracking-[0.04em] text-white mb-3"
+                            style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                        >
+                            Account Under Review
+                        </h1>
+                        <p className="text-sm text-white/50 font-light leading-relaxed mb-2">
+                            Thanks for signing up. Your account has been created and is now being reviewed by our team.
+                        </p>
+                        <p className="text-sm text-white/50 font-light leading-relaxed mb-8">
+                            You&apos;ll receive an email once your account has been approved. You won&apos;t be able to log in until then.
+                        </p>
+                        <Link
+                            href="/invest/login"
+                            className="inline-block w-full py-3.5 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.1] text-white text-sm font-semibold tracking-[0.1em] uppercase rounded-full transition-all duration-300"
+                            style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                        >
+                            Back to Login
+                        </Link>
+                    </div>
+                ) : (
+                <>
                 {/* Card */}
                 <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-8 sm:p-10">
                     {/* Header */}
@@ -334,6 +351,8 @@ export default function SignupPage() {
                         </Link>
                     </p>
                 </div>
+                </>
+                )}
             </motion.div>
         </div>
     );

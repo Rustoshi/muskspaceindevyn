@@ -7,7 +7,7 @@ import UserPlan from "@/models/UserPlan";
 import InvestmentPlan from "@/models/InvestmentPlan";
 import ProjectStake from "@/models/ProjectStake";
 import { revalidatePath } from "next/cache";
-import { sendEmail, buildApprovalEmail } from "@/lib/email";
+import { sendEmail, buildApprovalEmail, buildAccountRejectedEmail } from "@/lib/email";
 
 // --- TAB 1: EDIT USER ---
 export async function updateUserDetails(userId: string, formData: FormData) {
@@ -260,6 +260,40 @@ export async function approveUserAccount(userId: string) {
             });
         } catch (emailError) {
             console.error("[approveUserAccount] Failed to send approval email:", emailError);
+        }
+
+        revalidatePath("/admin/dashboard");
+        revalidatePath(`/admin/users/${userId}`);
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}
+
+// --- ACCOUNT REJECTION ---
+export async function rejectUserAccount(userId: string, reason?: string) {
+    try {
+        await dbConnect();
+
+        const user = await User.findById(userId);
+        if (!user) return { success: false, error: "User not found." };
+
+        if (user.accountStatus !== 'pending') {
+            return { success: false, error: "Account is not in a pending state." };
+        }
+
+        user.accountStatus = 'rejected';
+        await user.save();
+
+        // Send rejection email (non-blocking)
+        try {
+            await sendEmail({
+                to: user.email,
+                subject: "Musk Space — Account Application Update",
+                htmlbody: buildAccountRejectedEmail(user.firstName, reason),
+            });
+        } catch (emailError) {
+            console.error("[rejectUserAccount] Failed to send rejection email:", emailError);
         }
 
         revalidatePath("/admin/dashboard");

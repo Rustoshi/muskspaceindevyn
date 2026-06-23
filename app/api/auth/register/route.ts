@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
-import { sendEmail, buildWelcomeEmail } from '@/lib/email';
+import { sendEmail, buildAccountPendingEmail } from '@/lib/email';
 
 export async function POST(req: Request) {
     try {
@@ -42,23 +42,27 @@ export async function POST(req: Request) {
             phone,
             password,
             withdrawalPin,
-            accountStatus: 'active',
+            accountStatus: 'pending',
             // The rest of the custom dashboard fields drop to their Schema defaults (0, tier 1, etc)
         });
 
-        // Send welcome email (non-blocking — don't fail registration if email fails)
+        // Send "account under review" email (non-blocking — don't fail registration if email fails)
         try {
             await sendEmail({
                 to: email,
-                subject: 'Welcome to Musk Space — Your Account is Active',
-                htmlbody: buildWelcomeEmail(firstName),
+                subject: 'Musk Space — Your Account is Under Review',
+                htmlbody: buildAccountPendingEmail(firstName),
             });
         } catch (emailError) {
-            console.error('[Register] Failed to send welcome email:', emailError);
+            console.error('[Register] Failed to send pending email:', emailError);
         }
 
         return NextResponse.json(
-            { message: 'User registered successfully', userId: newUser._id },
+            {
+                message: 'Your account has been created and is pending admin approval.',
+                userId: newUser._id,
+                pendingApproval: true,
+            },
             { status: 201 }
         );
 

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Search, ChevronLeft, ChevronRight, Settings, UserCheck, Package, Clock } from "lucide-react";
 import Link from "next/link";
-import { approveUserAccount } from "@/app/admin/actions/users";
+import { approveUserAccount, rejectUserAccount } from "@/app/admin/actions/users";
 
 // --- QUICK ACTIONS ---
 export function QuickActions() {
@@ -50,6 +50,22 @@ export function PendingUsersTable({ initialUsers }: { initialUsers: any[] }) {
         });
     };
 
+    const handleReject = (userId: string) => {
+        if (!confirm("Reject this account? The user will be notified by email and will not be able to log in.")) return;
+        setLoadingId(userId);
+        setFeedback(null);
+        startTransition(async () => {
+            const result = await rejectUserAccount(userId);
+            if (result.success) {
+                setUsers(prev => prev.filter(u => u._id !== userId));
+                setFeedback({ id: userId, message: "Account rejected and email sent.", ok: true });
+            } else {
+                setFeedback({ id: userId, message: result.error || "Failed to reject.", ok: false });
+            }
+            setLoadingId(null);
+        });
+    };
+
     if (users.length === 0) return null;
 
     return (
@@ -91,13 +107,22 @@ export function PendingUsersTable({ initialUsers }: { initialUsers: any[] }) {
                                     {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"}
                                 </td>
                                 <td className="p-4 text-right">
-                                    <button
-                                        onClick={() => handleApprove(user._id)}
-                                        disabled={isPending && loadingId === user._id}
-                                        className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-green-400 hover:text-white transition-colors bg-green-500/10 hover:bg-green-500 px-3 py-1.5 rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                                    >
-                                        {isPending && loadingId === user._id ? "Approving..." : "Approve"}
-                                    </button>
+                                    <div className="inline-flex items-center gap-2">
+                                        <button
+                                            onClick={() => handleApprove(user._id)}
+                                            disabled={isPending && loadingId === user._id}
+                                            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-green-400 hover:text-white transition-colors bg-green-500/10 hover:bg-green-500 px-3 py-1.5 rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                        >
+                                            {isPending && loadingId === user._id ? "Working..." : "Approve"}
+                                        </button>
+                                        <button
+                                            onClick={() => handleReject(user._id)}
+                                            disabled={isPending && loadingId === user._id}
+                                            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-red-400 hover:text-white transition-colors bg-red-500/10 hover:bg-red-500 px-3 py-1.5 rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                        >
+                                            Reject
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}

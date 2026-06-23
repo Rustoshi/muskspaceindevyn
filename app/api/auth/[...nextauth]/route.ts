@@ -33,6 +33,16 @@ export const authOptions = {
                     throw new Error("Invalid password");
                 }
 
+                // Block accounts that are still awaiting admin approval
+                if (user.accountStatus === 'pending') {
+                    throw new Error("Your account is under review. You'll be notified by email once it has been approved.");
+                }
+
+                // Block accounts that have been rejected by an admin
+                if (user.accountStatus === 'rejected') {
+                    throw new Error("Your account application was not approved. Please contact support.");
+                }
+
                 // Block suspended or blocked accounts
                 if (user.accountStatus === 'suspended') {
                     throw new Error("Your account has been suspended. Please contact support.");
